@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\ReviewsRequest;
 use App\Models\Reviews;
+use App\Models\User;
+use App\Mail\ReviewSubmitted;
+use Illuminate\Support\Facades\Mail;
 // use App\Models\Lead; // TODO: Uncomment when Lead model is created
 use OpenApi\Attributes as OA;
 
@@ -94,6 +97,17 @@ class ReviewController extends Controller
 
             // Create the review
             $review = Reviews::create($request->all());
+
+            // Send email notification to all admin users
+            try {
+                $admins = User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    Mail::to($admin->email)->send(new ReviewSubmitted($review));
+                }
+            } catch (\Exception $mailException) {
+                \Log::error('Failed to send review notification email: ' . $mailException->getMessage());
+                // Don't fail the review creation if email fails
+            }
 
             // Store review as a lead for lead management
             // TODO: Uncomment when Lead model is created
