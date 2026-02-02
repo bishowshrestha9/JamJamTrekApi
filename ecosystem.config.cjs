@@ -1,10 +1,10 @@
 module.exports = {
   apps: [
     {
-      name: 'orophile-api',
+      name: 'jamjam-trek-api',
       script: 'php',
-      args: 'artisan serve --host=0.0.0.0 --port=8000',
-      cwd: '/var/www/OrophileTrekApi',
+      args: 'artisan serve --host=0.0.0.0 --port=8001',
+      cwd: '/var/www/JamJamTrekApi',
       interpreter: 'none',
       instances: 1,
       autorestart: true,
