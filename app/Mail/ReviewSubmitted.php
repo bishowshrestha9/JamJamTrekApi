@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Reviews;
 
-class ReviewSubmitted extends Mailable
+class ReviewSubmitted extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
