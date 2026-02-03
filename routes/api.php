@@ -7,6 +7,7 @@ use App\Http\Controllers\api\TrekController;
 use App\Http\Controllers\api\BlogsController;
 use App\Http\Controllers\api\ReviewController;
 use App\Http\Controllers\api\ActivityController;
+use App\Http\Controllers\api\TourController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -15,6 +16,21 @@ Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 
 
 Route::apiResource('treks', TrekController::class);
+
+// Tours - Public routes
+Route::prefix('tours')->group(function () {
+Route::get('/', [TourController::class, 'index']);
+Route::get('/featured', [TourController::class, 'featured']);
+Route::get('/popular', [TourController::class, 'popular']);
+Route::get('/{id}', [TourController::class, 'show']);
+});
+
+// Tours - Protected routes (admin only)
+Route::prefix('tours')->middleware(['auth:sanctum', 'role'])->group(function () {
+Route::post('/', [TourController::class, 'store']);
+Route::post('/{id}', [TourController::class, 'update']);
+Route::delete('/{id}', [TourController::class, 'destroy']);
+});
 
 Route::apiResource('activities', ActivityController::class);
 
