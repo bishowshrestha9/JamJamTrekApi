@@ -42,7 +42,7 @@ return [
             'https://161.97.167.73:3000',
             'https://161.97.167.73:3002',
             'https://kirsten-vaulted-margarita.ngrok-free.dev',
-            'https://api.jamjamtrek.tours'
+            'https://jamjamtrek.tours'
         ],
 
     // Do NOT use patterns when credentials are enabled
