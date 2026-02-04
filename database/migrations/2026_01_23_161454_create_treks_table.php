@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->enum('data_type', ['trek', 'package']);
             $table->string('title');
             $table->string('location');
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
             $table->string('currency')->default('USD');
             $table->string('duration');
             $table->string('difficulty');

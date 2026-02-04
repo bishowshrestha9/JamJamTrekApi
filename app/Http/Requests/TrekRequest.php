@@ -25,7 +25,7 @@ class TrekRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'duration' => 'required|string|max:100',
             'difficulty' => 'required|string|max:100',
             'type' => 'required|string|max:100',
