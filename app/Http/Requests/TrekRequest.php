@@ -45,9 +45,18 @@ class TrekRequest extends FormRequest
     protected function prepareForValidation()
     {
         if (is_string($this->trek_days)) {
-            $this->merge([
-                'trek_days' => array_map('trim', explode(',', $this->trek_days)),
-            ]);
+            // Try to decode JSON first
+            $decoded = json_decode($this->trek_days, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $this->merge([
+                    'trek_days' => $decoded
+                ]);
+            } else {
+                // Fall back to comma-separated
+                $this->merge([
+                    'trek_days' => array_map('trim', explode(',', $this->trek_days)),
+                ]);
+            }
         }
         if (is_string($this->is_featured)) {
             $isBoolean = filter_var($this->is_featured, FILTER_VALIDATE_BOOLEAN);
