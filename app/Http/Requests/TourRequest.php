@@ -26,7 +26,7 @@ class TourRequest extends FormRequest
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
 
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'currency' => 'nullable|string|max:10',
             'discount_price' => 'nullable|numeric|min:0',
 
