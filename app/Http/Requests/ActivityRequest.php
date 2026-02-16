@@ -25,7 +25,7 @@ class ActivityRequest extends FormRequest
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'currency' => 'required|string|max:10',
+            'currency' => 'nullable|string|max:10',
             'duration' => 'required|string|max:100',
             'difficulty' => 'required|string|max:100',
             'category' => 'required|string|max:100',

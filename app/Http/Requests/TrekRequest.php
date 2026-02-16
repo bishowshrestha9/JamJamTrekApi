@@ -35,7 +35,7 @@ class TrekRequest extends FormRequest
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
             'is_featured' => 'required|boolean',
             'is_active' => 'required|boolean',
-            'currency' => 'required|string|max:100',
+            'currency' => 'nullable|string|max:100',
             'trek_days' => 'required|array|min:1',
             'trek_days.*' => 'required|string|max:1000',
             'data_type' => 'required|in:trek,package',
