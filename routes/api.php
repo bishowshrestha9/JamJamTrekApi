@@ -8,6 +8,7 @@ use App\Http\Controllers\api\BlogsController;
 use App\Http\Controllers\api\ReviewController;
 use App\Http\Controllers\api\ActivityController;
 use App\Http\Controllers\api\TourController;
+use App\Http\Controllers\api\GalleryController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -44,6 +45,18 @@ Route::prefix('blogs')->middleware(['auth:sanctum', 'role'])->group(function () 
 Route::group(['prefix' => 'blogs'], function () {
     Route::get('/{id}', [BlogsController::class, 'show']);
     Route::get('/', [BlogsController::class, 'index']);
+});
+
+// Gallery - Public routes
+Route::prefix('gallery')->group(function () {
+    Route::get('/', [GalleryController::class, 'index']);
+});
+
+// Gallery - Protected routes (admin only)
+Route::prefix('gallery')->middleware(['auth:sanctum', 'role'])->group(function () {
+    Route::post('/', [GalleryController::class, 'store']);
+    Route::post('/{id}', [GalleryController::class, 'update']);
+    Route::delete('/{id}', [GalleryController::class, 'destroy']);
 });
 
 // Public review submission (no auth required) - rate limited
