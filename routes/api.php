@@ -9,6 +9,7 @@ use App\Http\Controllers\api\ReviewController;
 use App\Http\Controllers\api\ActivityController;
 use App\Http\Controllers\api\TourController;
 use App\Http\Controllers\api\GalleryController;
+use App\Http\Controllers\api\LegalDocumentController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -56,7 +57,19 @@ Route::prefix('gallery')->group(function () {
 Route::prefix('gallery')->middleware(['auth:sanctum', 'role'])->group(function () {
     Route::post('/', [GalleryController::class, 'store']);
     Route::post('/{id}', [GalleryController::class, 'update']);
-    Route::delete('/{id}', [GalleryController::class, 'destroy']);
+Route::delete('/{id}', [GalleryController::class, 'destroy']);
+});
+
+// Legal Documents - Public routes
+Route::prefix('legal-documents')->group(function () {
+    Route::get('/', [LegalDocumentController::class, 'index']);
+});
+
+// Legal Documents - Protected routes (admin only)
+Route::prefix('legal-documents')->middleware(['auth:sanctum', 'role'])->group(function () {
+    Route::post('/', [LegalDocumentController::class, 'store']);
+    Route::post('/{id}', [LegalDocumentController::class, 'update']);
+    Route::delete('/{id}', [LegalDocumentController::class, 'destroy']);
 });
 
 // Public review submission (no auth required) - rate limited

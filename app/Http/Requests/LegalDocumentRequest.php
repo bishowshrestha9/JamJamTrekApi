@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GalleryRequest extends FormRequest
+class LegalDocumentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -44,14 +44,14 @@ class GalleryRequest extends FormRequest
         
         if ($isUpdate) {
             return [
-                'caption' => 'nullable|string|max:255',
+                'title' => 'nullable|string|max:255',
                 'is_active' => 'sometimes|boolean',
                 'image' => 'nullable|file|image|mimes:jpeg,jpg,png,gif,webp|max:10240',
             ];
         }
 
         return [
-            'caption' => 'nullable|string|max:255',
+            'title' => 'nullable|string|max:255',
             'is_active' => 'sometimes|boolean',
             'images' => 'required|array',
             'images.*' => 'required|file|image|mimes:jpeg,jpg,png,gif,webp|max:10240', // 10MB limit per image

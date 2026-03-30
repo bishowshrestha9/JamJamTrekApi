@@ -3,26 +3,26 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Gallery;
+use App\Models\LegalDocument;
 use Illuminate\Http\Request;
-use App\Http\Requests\GalleryRequest;
+use App\Http\Requests\LegalDocumentRequest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(
-    name: "Gallery",
-    description: "API Endpoints for Gallery Management"
+    name: "Legal Document",
+    description: "API Endpoints for Legal Document Management"
 )]
-class GalleryController extends Controller
+class LegalDocumentController extends Controller
 {
     #[OA\Get(
-        path: "/api/gallery",
-        summary: "Get list of gallery images",
-        description: "Retrieve a list of all images in the gallery",
-        operationId: "getGallery",
-        tags: ["Gallery"],
+        path: "/api/legal-documents",
+        summary: "Get list of legal documents",
+        description: "Retrieve a list of all images in the legal documents gallery",
+        operationId: "getLegalDocuments",
+        tags: ["Legal Document"],
         responses: [
             new OA\Response(
                 response: 200,
@@ -30,16 +30,16 @@ class GalleryController extends Controller
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: "status", type: "boolean", example: true),
-                        new OA\Property(property: "message", type: "string", example: "Gallery images fetched successfully"),
+                        new OA\Property(property: "message", type: "string", example: "Legal documents fetched successfully"),
                         new OA\Property(
                             property: "data",
                             type: "array",
                             items: new OA\Items(
                                 properties: [
                                     new OA\Property(property: "id", type: "integer", example: 1),
-                                    new OA\Property(property: "image", type: "string", example: "gallery/image.jpg"),
-                                    new OA\Property(property: "image_url", type: "string", example: "http://localhost:8000/storage/gallery/image.jpg"),
-                                    new OA\Property(property: "caption", type: "string", example: "A beautiful mountain view"),
+                                    new OA\Property(property: "image", type: "string", example: "legal_documents/image.jpg"),
+                                    new OA\Property(property: "image_url", type: "string", example: "http://localhost:8000/storage/legal_documents/image.jpg"),
+                                    new OA\Property(property: "title", type: "string", example: "Company Registration Certificate"),
                                     new OA\Property(property: "is_active", type: "boolean", example: true),
                                     new OA\Property(property: "created_at", type: "string", format: "date-time"),
                                     new OA\Property(property: "updated_at", type: "string", format: "date-time")
@@ -55,28 +55,28 @@ class GalleryController extends Controller
     public function index()
     {
         try {
-            $gallery = Gallery::where('is_active', true)->orderBy('created_at', 'desc')->get();
+            $documents = LegalDocument::where('is_active', true)->orderBy('created_at', 'desc')->get();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Gallery images fetched successfully',
-                'data' => $gallery,
+                'message' => 'Legal documents fetched successfully',
+                'data' => $documents,
             ], 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage(), ['file' => $e->getFile(), 'line' => $e->getLine()]);
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to fetch gallery images',
+                'message' => 'Failed to fetch legal documents',
             ], 500);
         }
     }
 
     #[OA\Post(
-        path: "/api/gallery",
-        summary: "Add a new image to gallery",
-        description: "Store a new image with optional caption (admin only)",
-        operationId: "createGallery",
-        tags: ["Gallery"],
+        path: "/api/legal-documents",
+        summary: "Add a new legal document",
+        description: "Store a new document image with optional title (admin only)",
+        operationId: "createLegalDocument",
+        tags: ["Legal Document"],
         security: [["sanctum" => []]]
     )]
     #[OA\RequestBody(
@@ -90,9 +90,9 @@ class GalleryController extends Controller
                         property: "images[]",
                         type: "array",
                         items: new OA\Items(type: "string", format: "binary"),
-                        description: "Array of images to upload"
+                        description: "Array of document images to upload"
                     ),
-                    new OA\Property(property: "caption", type: "string", maxLength: 255, example: "Trekking near Mt. Everest"),
+                    new OA\Property(property: "title", type: "string", maxLength: 255, example: "Company Registration Document"),
                     new OA\Property(property: "is_active", type: "boolean", example: true)
                 ]
             )
@@ -100,62 +100,62 @@ class GalleryController extends Controller
     )]
     #[OA\Response(
         response: 201,
-        description: "Image added to gallery successfully",
+        description: "Legal document added successfully",
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(property: "status", type: "boolean", example: true),
-                new OA\Property(property: "message", type: "string", example: "Image added to gallery successfully")
+                new OA\Property(property: "message", type: "string", example: "Legal document added successfully")
             ]
         )
     )]
     #[OA\Response(response: 422, description: "Validation error")]
     #[OA\Response(response: 500, description: "Server error")]
-    public function store(GalleryRequest $request)
+    public function store(LegalDocumentRequest $request)
     {
         try {
-            $baseData = $request->only(['caption', 'is_active']);
+            $baseData = $request->only(['title', 'is_active']);
             $createdCount = 0;
 
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     // Generate unique filename
                     $extension = $image->getClientOriginalExtension();
-                    $filename = 'gallery_' . time() . '_' . Str::random(10) . '.' . $extension;
+                    $filename = 'legal_doc_' . time() . '_' . Str::random(10) . '.' . $extension;
 
-                    // Store in storage/app/public/gallery
-                    $path = $image->storeAs('gallery', $filename, 'public');
+                    // Store in storage/app/public/legal_documents
+                    $path = $image->storeAs('legal_documents', $filename, 'public');
                     
-                    // Create individual record for each image
-                    Gallery::create(array_merge($baseData, ['image' => $path]));
+                    // Create individual record for each document image
+                    LegalDocument::create(array_merge($baseData, ['image' => $path]));
                     $createdCount++;
                 }
             }
 
             return response()->json([
                 'status' => true,
-                'message' => "{$createdCount} image(s) added to gallery successfully",
+                'message' => "{$createdCount} document(s) added successfully",
             ], 201);
         } catch (\Exception $e) {
             Log::error($e->getMessage(), ['file' => $e->getFile(), 'line' => $e->getLine()]);
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to add image to gallery',
+                'message' => 'Failed to add legal document',
             ], 500);
         }
     }
 
     #[OA\Post(
-        path: "/api/gallery/{id}",
-        summary: "Update a gallery image",
-        description: "Update caption or image. Use POST with multipart/form-data for file uploads (admin only)",
-        operationId: "updateGallery",
-        tags: ["Gallery"],
+        path: "/api/legal-documents/{id}",
+        summary: "Update a legal document",
+        description: "Update title or image. Use POST with multipart/form-data for file uploads (admin only)",
+        operationId: "updateLegalDocument",
+        tags: ["Legal Document"],
         security: [["sanctum" => []]]
     )]
     #[OA\Parameter(
         name: "id",
         in: "path",
-        description: "Gallery ID",
+        description: "Legal Document ID",
         required: true,
         schema: new OA\Schema(type: "integer")
     )]
@@ -165,7 +165,7 @@ class GalleryController extends Controller
             mediaType: "multipart/form-data",
             schema: new OA\Schema(
                 properties: [
-                    new OA\Property(property: "caption", type: "string", maxLength: 255, example: "Updated caption"),
+                    new OA\Property(property: "title", type: "string", maxLength: 255, example: "Updated Company Document"),
                     new OA\Property(property: "is_active", type: "boolean", example: true),
                     new OA\Property(property: "image", type: "string", format: "binary", description: "New image (optional)")
                 ]
@@ -174,63 +174,63 @@ class GalleryController extends Controller
     )]
     #[OA\Response(
         response: 200,
-        description: "Gallery updated successfully",
+        description: "Legal document updated successfully",
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(property: "status", type: "boolean", example: true),
-                new OA\Property(property: "message", type: "string", example: "Gallery updated successfully")
+                new OA\Property(property: "message", type: "string", example: "Legal document updated successfully")
             ]
         )
     )]
     #[OA\Response(response: 404, description: "Item not found")]
     #[OA\Response(response: 500, description: "Server error")]
-    public function update(GalleryRequest $request, $id)
+    public function update(LegalDocumentRequest $request, $id)
     {
         try {
-            $gallery = Gallery::find($id);
-            if (!$gallery) {
+            $document = LegalDocument::find($id);
+            if (!$document) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Gallery item not found',
+                    'message' => 'Legal document not found',
                 ], 404);
             }
 
-            $data = $request->only(['caption', 'is_active']);
+            $data = $request->only(['title', 'is_active']);
 
             if ($request->hasFile('image')) {
                 // Delete old image if exists
-                if ($gallery->image && Storage::disk('public')->exists($gallery->image)) {
-                    Storage::disk('public')->delete($gallery->image);
+                if ($document->image && Storage::disk('public')->exists($document->image)) {
+                    Storage::disk('public')->delete($document->image);
                 }
 
                 $image = $request->file('image');
                 $extension = $image->getClientOriginalExtension();
-                $filename = 'gallery_' . time() . '_' . Str::random(10) . '.' . $extension;
-                $path = $image->storeAs('gallery', $filename, 'public');
+                $filename = 'legal_doc_' . time() . '_' . Str::random(10) . '.' . $extension;
+                $path = $image->storeAs('legal_documents', $filename, 'public');
                 $data['image'] = $path;
             }
 
-            $gallery->update($data);
+            $document->update($data);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Gallery updated successfully',
+                'message' => 'Legal document updated successfully',
             ], 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage(), ['file' => $e->getFile(), 'line' => $e->getLine()]);
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to update gallery',
+                'message' => 'Failed to update legal document',
             ], 500);
         }
     }
 
     #[OA\Delete(
-        path: "/api/gallery/{id}",
-        summary: "Delete a gallery image",
+        path: "/api/legal-documents/{id}",
+        summary: "Delete a legal document",
         description: "Delete image and associated file (admin only)",
-        operationId: "deleteGallery",
-        tags: ["Gallery"],
+        operationId: "deleteLegalDocument",
+        tags: ["Legal Document"],
         security: [["sanctum" => []]]
     )]
     #[OA\Parameter(
@@ -245,36 +245,36 @@ class GalleryController extends Controller
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(property: "status", type: "boolean", example: true),
-                new OA\Property(property: "message", type: "string", example: "Gallery item deleted successfully")
+                new OA\Property(property: "message", type: "string", example: "Legal document deleted successfully")
             ]
         )
     )]
     public function destroy($id)
     {
         try {
-            $gallery = Gallery::find($id);
-            if (!$gallery) {
+            $document = LegalDocument::find($id);
+            if (!$document) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Gallery item not found',
+                    'message' => 'Legal document not found',
                 ], 404);
             }
 
-            if ($gallery->image && Storage::disk('public')->exists($gallery->image)) {
-                Storage::disk('public')->delete($gallery->image);
+            if ($document->image && Storage::disk('public')->exists($document->image)) {
+                Storage::disk('public')->delete($document->image);
             }
 
-            $gallery->delete();
+            $document->delete();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Gallery item deleted successfully',
+                'message' => 'Legal document deleted successfully',
             ], 200);
         } catch (\Exception $e) {
             Log::error($e->getMessage(), ['file' => $e->getFile(), 'line' => $e->getLine()]);
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to delete gallery item',
+                'message' => 'Failed to delete legal document',
             ], 500);
         }
     }

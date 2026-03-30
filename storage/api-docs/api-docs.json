@@ -1248,13 +1248,16 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "image"
+                                    "images"
                                 ],
                                 "properties": {
-                                    "image": {
-                                        "description": "Image to upload",
-                                        "type": "string",
-                                        "format": "binary"
+                                    "images[]": {
+                                        "description": "Array of images to upload",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
                                     },
                                     "caption": {
                                         "type": "string",
@@ -1416,6 +1419,275 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Gallery item deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/legal-documents": {
+            "get": {
+                "tags": [
+                    "Legal Document"
+                ],
+                "summary": "Get list of legal documents",
+                "description": "Retrieve a list of all images in the legal documents gallery",
+                "operationId": "getLegalDocuments",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Legal documents fetched successfully"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "image": {
+                                                        "type": "string",
+                                                        "example": "legal_documents/image.jpg"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "example": "http://localhost:8000/storage/legal_documents/image.jpg"
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Company Registration Certificate"
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Legal Document"
+                ],
+                "summary": "Add a new legal document",
+                "description": "Store a new document image with optional title (admin only)",
+                "operationId": "createLegalDocument",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "images"
+                                ],
+                                "properties": {
+                                    "images[]": {
+                                        "description": "Array of document images to upload",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Company Registration Document"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Legal document added successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Legal document added successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/legal-documents/{id}": {
+            "post": {
+                "tags": [
+                    "Legal Document"
+                ],
+                "summary": "Update a legal document",
+                "description": "Update title or image. Use POST with multipart/form-data for file uploads (admin only)",
+                "operationId": "updateLegalDocument",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Legal Document ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Updated Company Document"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "image": {
+                                        "description": "New image (optional)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Legal document updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Legal document updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Item not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Legal Document"
+                ],
+                "summary": "Delete a legal document",
+                "description": "Delete image and associated file (admin only)",
+                "operationId": "deleteLegalDocument",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Legal document deleted successfully"
                                         }
                                     },
                                     "type": "object"
@@ -2773,6 +3045,10 @@
         {
             "name": "Gallery",
             "description": "API Endpoints for Gallery Management"
+        },
+        {
+            "name": "Legal Document",
+            "description": "API Endpoints for Legal Document Management"
         },
         {
             "name": "Reviews",
